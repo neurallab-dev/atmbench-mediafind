@@ -60,20 +60,27 @@ fi
 if [ ! -s atm/rw-san-key.json ]; then need 0.3 "rewrites (DeepSeek)"; stage "rewrites DeepSeek V4.1 Flash"; TRIPS="$SP/cards/trips_s.json" TASKS_TAG=san "$PY" -u rewrite_queries.py runs/rewrites_s.json > runs/rewrite_s.log 2>&1; head -1 runs/rewrite_s.log; fi
 if [ ! -s runs/rw_san.lex.rank.json ]; then stage "rewritten-query lexical ranking (bge-m3)"; MF_WORKTREE="$PIN_BGE" MEDIAFIND_EMBED_DEVICE=cpu ./run_rank.sh data_san atm/atm-bench-san-rw.doc.jsonl runs/rw_san lex:lexical > runs/rw_san.log 2>&1; grep RESULT runs/rw_san.log; fi
 [ -s runs/san_fused.rank.json ] || { stage "open-ended pool"; "$PY" -I make_pool_san.py || exit 1; }
-for spec in "sanmini openai/gpt-5.4-mini 0.8" "sangpt54 openai/gpt-5.4 5.0"; do
-  set -- $spec
+rewrite_set() {  # rewrite_set TAG MODEL ESTIMATE
   if [ ! -s "atm/rw-$1-key.json" ]; then
     need "$3" "rewrites ($2)"; stage "rewrites $2"; cp atm/atm-bench-san.doc.jsonl "atm/atm-bench-$1.doc.jsonl"
     TRIPS="$SP/cards/trips_s.json" TASKS_TAG="$1" "$PY" -u rewrite_queries.py "runs/rewrites_$1.json" "$2" > "runs/rewrite_$1.log" 2>&1; head -1 "runs/rewrite_$1.log"
   fi
-done
+  [ -s "atm/rw-$1-key.json" ] || { echo "ABORT: rewrites $1 missing"; exit 1; }
+}
+rewrite_set sanmini openai/gpt-5.4-mini 0.8
 # 7. Qwen3-Embedding-4B ranking (local): document vectors over the store's own chunks, injected into a copy of the store,
 #    product retrieval (pinned tree) with the model's query prompt, top-50 rerank, fusion -> list and number pool
 if [ ! -s runs/pe_q4b_units.npy ]; then stage "Qwen3-Embedding-4B encode (MPS fp16)"; PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 "$PYV" proxy_embed.py Qwen/Qwen3-Embedding-4B q4b --dtype fp16 --maxlen 1024 --devices mps:8,mps:4,mps:2 > runs/pe_q4b.log 2>&1; tail -3 runs/pe_q4b.log; fi
 [ -s runs/pe_q4b_units.npy ] || { echo "ABORT: 4B vectors missing"; exit 1; }
-if [ ! -s runs/e_q4b.ce50.rank.json ] || [ ! -s runs/e_q4b_rw_sangpt54.lex.rank.json ]; then
-  stage "4B retrieval + rerank"; MF_WORKTREE="$PIN_4B" S2_DEVICE=mps MF_QUERY_PROMPT=1 ./run_s2_embed.sh Qwen/Qwen3-Embedding-4B q4b san sanmini sangpt54 > runs/s2_q4b.log 2>&1; tail -4 runs/s2_q4b.log
+if [ ! -s runs/e_q4b.ce50.rank.json ] || [ ! -s runs/e_q4b_rw_sanmini.lex.rank.json ]; then
+  stage "4B retrieval (question, DeepSeek and GPT-5.4 mini rewrites) + rerank"; MF_WORKTREE="$PIN_4B" S2_DEVICE=mps MF_QUERY_PROMPT=1 ./run_s2_embed.sh Qwen/Qwen3-Embedding-4B q4b san sanmini > runs/s2_q4b.log 2>&1; tail -4 runs/s2_q4b.log
 fi
+[ -s runs/e_q4b.ce50.rank.json ] || { echo "ABORT: 4B rerank missing (runs/s2_q4b.log)"; exit 1; }
+rewrite_set sangpt54 openai/gpt-5.4 5.0
+if [ ! -s runs/e_q4b_rw_sangpt54.lex.rank.json ]; then
+  stage "4B retrieval (GPT-5.4 rewrite)"; MF_WORKTREE="$PIN_4B" S2_DEVICE=mps MF_QUERY_PROMPT=1 ./run_s2_embed.sh Qwen/Qwen3-Embedding-4B q4b san sanmini sangpt54 >> runs/s2_q4b.log 2>&1; tail -2 runs/s2_q4b.log
+fi
+[ -s runs/e_q4b_rw_sangpt54.lex.rank.json ] || { echo "ABORT: 4B ranking of the GPT-5.4 rewrite missing"; exit 1; }
 [ -s runs/san_fused_e_q4b_w15.rank.json ] || { stage "list and number pool"; "$PY" -I make_pool_w15.py || exit 1; }
 [ -s runs/san_fused_typecond2.rank.json ] || "$PY" -I make_pool_typecond2.py
 # 8. answers (paid), one configuration per question type, exactly as the adopted runs; no judge here
