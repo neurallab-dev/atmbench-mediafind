@@ -3,7 +3,7 @@
 # first reranker has finished, one Metal process at a time) -> full answer run -> judge -> evidence.
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 stage() { echo "=== $1 ($(date +%H:%M))"; }
 while ! grep -q "^done" runs/vision.log 2>/dev/null; do sleep 60; done
 WORKERS=16 "$PY" -u vlm_caption.py cards/vision.jsonl deepseek/deepseek-v4-flash-vision-exp >> runs/vision.log 2>&1   # retry pass for failures

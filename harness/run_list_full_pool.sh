@@ -2,7 +2,7 @@
 # Full 139-list-question run on a given pool with the adopted list policy (one 25-item map call, K_LIST default 10).
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"; QA="$SP/atm/atm-bench-list-only.json"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"; QA="$SP/atm/atm-bench-list-only.json"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL="${MAP_MODEL:-deepseek/deepseek-v4.1-flash}" FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 NAME="$1"; POOL="$2"; KL="${3:-10}"
 echo "=== $NAME pool=$POOL K_LIST=$KL ($(date -u +%H:%M) UTC)"

@@ -2,7 +2,7 @@
 # usage: run_r4.sh sub                      — subset selection stage: both targets x both equality rules, scored from existing judgments
 #        run_r4.sh full <target> <equality> — full set: compose answers, one clean judge pass
 set -uo pipefail
-SP="$(cd "$(dirname "$0")" && pwd)"; PY="$HOME/atmbench/.venv/bin/python"
+SP="$(cd "$(dirname "$0")" && pwd)"; PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 case "$1" in
   sub) echo "=== R4 subset stage ($(date +%H:%M))" | tee -a "$SP/runs/r4_sub.txt"

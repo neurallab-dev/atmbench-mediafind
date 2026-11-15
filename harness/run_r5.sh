@@ -3,7 +3,7 @@
 # top-150 of the pool -> fusion RRF k=10 depth 100 (rw200, ce150), same structure as the submitted ranking -> deterministic gate.
 # Pre-stated gate: uncovered@25 <= 71 (now 86) AND R@10 >= 89.43 (now 89.73, -0.3) AND previously-covered q losing coverage <= 5.
 set -uo pipefail
-SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"; PY="$HOME/atmbench/.venv/bin/python"
+SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"; PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 export HF_HOME="$HOME/Library/Application Support/MediaFind/models/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 stage() { echo "=== $1 ($(date +%H:%M))"; }
 rm -f runs/r5_local.DONE

@@ -5,7 +5,7 @@
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
 MODEL="$1"; TAG="$2"; NAME="san_full_$TAG"; QA="$SP/atm/atm-bench.json"; RANK="$SP/runs/san_fused.rank.json"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 LABEL="$MODEL"; case "$MODEL" in openai/gpt-5*) LABEL="$MODEL (reasoning effort minimal)";; esac
 echo "=== frontier reduce-only pass: $MODEL -> $NAME ($(date +%H:%M))"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=openai/gpt-5.4-mini

@@ -2,7 +2,7 @@
 # K_LIST sweep on the adopted list configuration (4B-fused pool, one 25-item map call), on the hash subset's 30 list q (deterministic Jaccard).
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"; QA="$SP/atm/atm-subset-sha1-list.json"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"; QA="$SP/atm/atm-subset-sha1-list.json"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 for KL in "$@"; do
   NAME="lsub_b25q4b_K$KL"; echo "=== $NAME K_LIST=$KL ($(date +%H:%M))"

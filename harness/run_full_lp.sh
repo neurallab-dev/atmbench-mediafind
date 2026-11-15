@@ -5,7 +5,7 @@
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
 NAME="$1"; RANK="$2"; QA="$SP/atm/atm-bench.json"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 echo "=== FULL LP $NAME rank=$RANK ($(date +%H:%M))"
 RANK_PRIOR_K=0 RANK_PRIOR_K_LIST=10 "$PY" -u mf_answer_r2.py --qa "$QA" --pool "$RANK" --topk 25 --mode mapreduce --workers 6 --out "ans/$NAME.jsonl" 2> "runs/$NAME.err" | tail -1

@@ -1,6 +1,6 @@
 """Probe the official deterministic scorer: recompute number accuracy, then test a 24-hour-clock post-normalisation of the predictions."""
-import sys, json, re
-sys.path.insert(0, "/Users/mbp/atmbench/atm-src")
+import os, sys, json, re
+sys.path.insert(0, os.environ.get("ATM_SRC", os.path.join(os.path.dirname(os.path.abspath(__file__)), "atm-official")))
 from memqa.utils.evaluator.evaluate_qa import deterministic_accuracy
 E = json.load(open("ans/san_full_q4blists.eval/atm_openai_gpt-5-mini.json"))
 qa = {q["id"]: q for q in json.load(open("atm/atm-bench.json"))}

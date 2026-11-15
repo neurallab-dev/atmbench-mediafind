@@ -4,7 +4,7 @@
 # -> full run with the frozen variant -> judge -> evidence (top-10 + top-25 ids). Resumable: stages skip when their output exists.
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 stage() { echo "=== $1 ($(date +%H:%M))"; }
 export HF_HOME="$HOME/Library/Application Support/MediaFind/models/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 if [ ! -s cards/trips_s.json ]; then stage "timeline"; WORKERS=12 "$PY" -u trips_extract.py cards/trips_s.json > runs/trips_s.log 2>&1; tail -1 runs/trips_s.log; fi

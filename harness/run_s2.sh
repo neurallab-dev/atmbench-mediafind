@@ -4,7 +4,7 @@
 # usage: run_s2.sh <B|C|D>     B = whole item (MF_DOC_CHUNK_WORDS=2000), C = 160-word chunks + header prefix, D = 400-word chunks
 # Pre-stated gate: uncovered@25 <= 71 (now 86) AND R@10 >= 89.43 (now 89.73, -0.3); newly covered / lost coverage reported.
 set -uo pipefail
-SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"; PY="$HOME/atmbench/.venv/bin/python"; V="${1:?variant}"
+SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"; PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"; V="${1:?variant}"
 case "$V" in B) CW=2000; HDR="";; C) CW=160; HDR=1;; D) CW=400; HDR="";; *) echo "variant must be B, C or D"; exit 2;; esac
 export HF_HOME="$HOME/Library/Application Support/MediaFind/models/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 DATA="data_s2_$V"; stage() { echo "=== $1 ($(date +%H:%M))"; }

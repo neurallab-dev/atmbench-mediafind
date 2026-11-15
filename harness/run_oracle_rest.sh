@@ -2,7 +2,7 @@
 # Second half of the subset Oracle sweep (opus-5.5 restarted with 3 workers + stderr captured, then gpt-5.5). Cached calls are reused.
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 FALLBACK_MODEL=openai/gpt-5.4-mini
 for M in anthropic/claude-opus-5.5 openai/gpt-5.5; do
   N="orc_san_$(echo "$M" | tr '/.' '__')"

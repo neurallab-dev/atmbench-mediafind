@@ -3,7 +3,7 @@
 #        run_r3.sh sub  <variant> <SECOND_MODEL> [SECOND_CTX]   — subset answers + judge
 #        run_r3.sh full <variant> <SECOND_MODEL> [SECOND_CTX]   — full set answers + judge + retrieval line
 set -uo pipefail
-SP="$(cd "$(dirname "$0")" && pwd)"; STAGE="$1"; V="$2"; PY="$HOME/atmbench/.venv/bin/python"
+SP="$(cd "$(dirname "$0")" && pwd)"; STAGE="$1"; V="$2"; PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 export SECOND_MODEL="$3" SECOND_CTX="${4:-}" SECOND_K="${SECOND_K:-5}"
 case "$STAGE" in

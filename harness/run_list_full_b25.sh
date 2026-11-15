@@ -2,7 +2,7 @@
 # Full 139-list-question run(s) of a K_LIST depth on the adopted list configuration (4B-fused pool, one 25-item map call).
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"; QA="$SP/atm/atm-bench-list-only.json"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"; QA="$SP/atm/atm-bench-list-only.json"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 for KL in "$@"; do
   NAME="lfull_b25q4b_K$KL"; echo "=== $NAME K_LIST=$KL ($(date +%H:%M))"

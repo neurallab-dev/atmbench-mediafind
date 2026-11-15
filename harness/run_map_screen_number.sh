@@ -4,5 +4,5 @@
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
 for m in "$@"; do tag="nmap_$(echo "$m" | tr '/.:-' '____')"; echo "=== $m -> $tag ($(date -u +%H:%M) UTC)"
-  MAP_MODEL="$m" BASE10=0 QA_FILE="${QA_FILE:-atm/atm-bench-number.json}" POOLK=25 "$HOME/atmbench/.venv/bin/python" -u map_model_test.py "${POOL:-runs/san_fused.rank.json}" "${tag}${POOLTAG:-}" 10 2>&1 | grep -v -i warn
+  MAP_MODEL="$m" BASE10=0 QA_FILE="${QA_FILE:-atm/atm-bench-number.json}" POOLK=25 "${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}" -u map_model_test.py "${POOL:-runs/san_fused.rank.json}" "${tag}${POOLTAG:-}" 10 2>&1 | grep -v -i warn
 done; echo "=== NUMBER MAP SCREEN DONE ($(date -u +%H:%M) UTC)"

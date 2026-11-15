@@ -5,7 +5,7 @@ SP="$(cd "$(dirname "$0")" && pwd)"
 NAME="$1"; RANK="$2"; TOPK="$3"; MODEL="$4"; QA="$SP/atm/atm-bench.json"
 export ITEMS_FILE="${ITEMS_FILE:-$SP/atm/items-cards.json}"
 echo "=== FULL $NAME model=$MODEL rank=$RANK topk=$TOPK BEST_GUESS=${BEST_GUESS:-} MAP_MODEL=${MAP_MODEL:-} ($(date +%H:%M))"
-ANSWER_MODEL="$MODEL" "$HOME/atmbench/.venv/bin/python" "$SP/mf_answer_v2.py" --qa "$QA" --pool "$RANK" --topk "$TOPK" --mode mapreduce --workers "${WORKERS:-6}" --out "$SP/ans/$NAME.jsonl" 2>&1 | grep -v "^$" | tail -5
+ANSWER_MODEL="$MODEL" "${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}" "$SP/mf_answer_v2.py" --qa "$QA" --pool "$RANK" --topk "$TOPK" --mode mapreduce --workers "${WORKERS:-6}" --out "$SP/ans/$NAME.jsonl" 2>&1 | grep -v "^$" | tail -5
 echo "answers written: $(wc -l < "$SP/ans/$NAME.jsonl"); FAILED lines above (must be 0)"
 WORKERS="${JUDGE_WORKERS:-6}" "$SP/judge.sh" "$NAME" "$QA" ""
 python3 -I - "$RANK" "$QA" <<'PY'

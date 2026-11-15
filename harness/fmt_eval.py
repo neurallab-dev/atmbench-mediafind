@@ -2,7 +2,7 @@
 the official deterministic scorer; list answers and the open_end judgments are carried over unchanged (no re-judging).
 usage: fmt_eval.py NAME BASE_RUN"""
 import json, os, sys, shutil
-sys.path.insert(0, "/Users/mbp/atmbench/atm-src"); sys.path.insert(0, ".")
+sys.path.insert(0, os.environ.get("ATM_SRC", os.path.join(os.path.dirname(os.path.abspath(__file__)), "atm-official"))); sys.path.insert(0, ".")
 from memqa.utils.evaluator.evaluate_qa import _deterministic_accuracy_core
 from ans_format import format_number_answer as F
 NAME, BASE = sys.argv[1:3]

@@ -3,7 +3,7 @@
 # usage: run_num_sub.sh NAME 'ENV=VAL ...'   e.g. run_num_sub.sh nsub_rm 'REDUCE_REASONING={"effort":"medium"}'
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"; QA="${QA:-$SP/atm/atm-subset-sha1-number.json}"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"; QA="${QA:-$SP/atm/atm-subset-sha1-number.json}"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 MAP_MODEL=deepseek/deepseek-v4.1-flash FALLBACK_MODEL=anthropic/claude-sonnet-5.5 ANSWER_MODEL=openai/gpt-5.4-mini
 NAME="$1"; shift
 echo "=== $NAME $* ($(date +%H:%M))"

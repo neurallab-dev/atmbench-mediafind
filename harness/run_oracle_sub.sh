@@ -2,7 +2,7 @@
 # Subset Oracle (gold evidence only, sanitized item text, frozen variant B) for the reduce-model choice; one judge pass each.
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 export ITEMS_FILE="$SP/atm/items-san.json" BEST_GUESS=1 FALLBACK_MODEL=openai/gpt-5.4-mini
 for M in openai/gpt-5.4-mini openai/gpt-5.4 openai/gpt-5.6-sol anthropic/claude-opus-5.5 openai/gpt-5.5; do
   N="orc_san_$(echo "$M" | tr '/.' '__')"

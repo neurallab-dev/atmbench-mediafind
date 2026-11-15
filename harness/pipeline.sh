@@ -4,7 +4,7 @@
 # Resumable: every stage skips when its output exists.
 set -uo pipefail
 SP="$(cd "$(dirname "$0")" && pwd)"; cd "$SP"
-PY="$HOME/atmbench/.venv/bin/python"
+PY="${ATM_PY:-$HOME/eval-archive/atm-run/.venv/bin/python}"
 stage() { echo "=== $1 ($(date +%H:%M))"; }
 [ -s atm/items.json ] || { stage "items"; python3 -I make_items.py; }
 if [ ! -s cards/trips.json ]; then stage "trips"; WORKERS=12 "$PY" -u trips_extract.py cards/trips.json > runs/trips.log 2>&1; tail -1 runs/trips.log; fi
