@@ -1,0 +1,4 @@
+PRE-REGISTERED 2026-10-29 14:45 UTC: ONE list-only answer pass, lfull_qwenmap_K10 = the adopted list configuration (pool runs/san_fused_e_q4b_w15.rank.json,
+one 25-item map call, K_LIST=10, reduce gpt-5.4-mini) with the relevance map by qwen/qwen3.8-flash instead of deepseek/deepseek-v4.1-flash.
+Deterministic gate (runs/mapb_lmap_*_b25.json, 139 list q): gold kept 197/229 vs 194/229, distractors 0.42 vs 1.42 per q, all-gold-kept 121 vs 120.
+Adopt only if list_recall >= 82.4 (adopted 80.2). No re-roll, no higher-of-two.

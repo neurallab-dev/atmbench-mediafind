@@ -1,0 +1,125 @@
+"""Shared OpenRouter chat client: retries, reasoning control, provider pinning, on-disk cache, cost ledger.
+
+env: OPENROUTER_ENV_FILE (default ~/.config/m3bench/openrouter.env, line OPENROUTER_API_KEY=...),
+     LLM_CACHE (jsonl path; default <here>/cache/<model>.jsonl), LLM_REASONING (json override),
+     LLM_IGNORE_PROVIDERS (json list for deepseek models; default ["GMICloud"])
+"""
+import hashlib, json, os, re, threading, time, urllib.request, urllib.error
+
+SP = os.path.dirname(os.path.abspath(__file__))
+
+
+def _load_key():
+    p = os.environ.get("OPENROUTER_ENV_FILE", os.path.expanduser("~/.config/m3bench/openrouter.env"))
+    for line in open(p):
+        m = re.match(r"\s*(?:export\s+)?OPENROUTER_API_KEY\s*=\s*(.+)", line)
+        if m:
+            return m.group(1).strip().strip("\"'")
+    raise RuntimeError("OPENROUTER_API_KEY not found in " + p)
+
+
+KEY = _load_key()
+_lock = threading.Lock()
+_cache = {}
+_cache_paths = {}
+COST = {"prompt": 0, "completion": 0, "usd": 0.0, "calls": 0, "cached": 0}
+
+
+def _cache_file(model):
+    if model not in _cache_paths:
+        p = os.environ.get("LLM_CACHE") or os.path.join(SP, "cache", model.replace("/", "_") + ".jsonl")
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        _cache_paths[model] = p
+        if os.path.exists(p):
+            with open(p) as f:
+                for line in f:
+                    try:
+                        r = json.loads(line)
+                        _cache[r["k"]] = r["v"]
+                    except Exception:
+                        pass
+    return _cache_paths[model]
+
+
+class Refused(RuntimeError):
+    """The provider refused the prompt (finish_reason content_filter): not retryable."""
+
+
+def reasoning_for(model):
+    """Reasoning setting that makes the model answer in `content` (deepseek v4 reasons by default)."""
+    env = os.environ.get("LLM_REASONING")
+    if env:
+        return json.loads(env)
+    if model.startswith("deepseek/"):
+        return {"enabled": False}
+    if model.startswith("openai/gpt-5"):
+        return {"effort": "minimal"}
+    return None
+
+
+def chat(messages, model, max_tokens=1500, temperature=0, use_cache=True, tag="", reasoning=None):
+    r = reasoning if reasoning is not None else reasoning_for(model)
+    body = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
+    if r is not None:
+        body["reasoning"] = r
+    if model.startswith("deepseek/"):
+        # GMICloud ignores reasoning.enabled=false and spends the whole max_tokens on hidden reasoning (empty content).
+        body["provider"] = {"ignore": json.loads(os.environ.get("LLM_IGNORE_PROVIDERS", '["GMICloud"]'))}
+    key = hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    with _lock:
+        path = _cache_file(model)
+        if use_cache and key in _cache:
+            COST["cached"] += 1
+            return _cache[key]
+    last = None
+    empties = 0
+    for attempt in range(10):
+        try:
+            if empties:
+                # An empty/degenerate completion is deterministic at temperature 0: widen the budget, then nudge.
+                body["max_tokens"] = min(16000, max_tokens * (2 ** empties))
+                if empties >= 2:
+                    body["temperature"] = 0.3
+            data = json.dumps(body).encode()
+            req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", data,
+                                         {"Authorization": "Bearer " + KEY, "Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                d = json.load(resp)
+            if "error" in d and not d.get("choices"):
+                raise RuntimeError(str(d["error"])[:300])
+            msg = d["choices"][0]["message"]
+            content = msg.get("content") or ""
+            fin = d["choices"][0].get("finish_reason")
+            if not content.strip() and fin == "content_filter":
+                # The provider refused the prompt outright (Anthropic via OpenRouter); retrying never helps and each
+                # retry loop costs ~6 min of backoff, so fail at once and let the caller's fallback model answer.
+                raise Refused(f"refused by provider content filter (provider={d.get('provider')})")
+            if not content.strip():
+                empties += 1
+                raise RuntimeError(f"empty content (finish={fin}, provider={d.get('provider')}, "
+                                   f"reasoning_len={len(msg.get('reasoning') or '')}, "
+                                   f"completion_tokens={(d.get('usage') or {}).get('completion_tokens')})")
+            u = d.get("usage") or {}
+            with _lock:
+                COST["prompt"] += u.get("prompt_tokens", 0); COST["completion"] += u.get("completion_tokens", 0)
+                COST["usd"] += float(u.get("cost") or 0.0); COST["calls"] += 1
+                if use_cache:
+                    _cache[key] = content
+                    with open(path, "a") as f:
+                        f.write(json.dumps({"k": key, "v": content, "tag": tag}, ensure_ascii=False) + "\n")
+            return content
+        except Refused:
+            raise
+        except urllib.error.HTTPError as e:
+            last = f"HTTP {e.code} {e.read()[:200]!r}"
+            if e.code in (400, 401, 403, 404):
+                raise RuntimeError(last)
+        except Exception as e:  # 429 / transient / empty
+            last = repr(e)[:300]
+        time.sleep(min(60, 2 * 2 ** attempt))
+    raise RuntimeError("chat failed: " + str(last))
+
+
+def cost_line():
+    return (f"calls {COST['calls']} (+{COST['cached']} cached) prompt {COST['prompt']:,} completion "
+            f"{COST['completion']:,} usd {COST['usd']:.3f}")

@@ -1,0 +1,7 @@
+Row updated to **QS 78.94** (number 81.4 / list_recall 76.7 / open_end 77.8), R@10 unchanged at 89.73 — head bab3b14 (on top of 18226f9).
+
+What changed: for list questions only, the reduce step now also receives the ten top-ranked items in addition to what the relevance map kept; number and open-ended questions run exactly as before. The answer set is assembled from runs that already existed, with no new answer or judge call: the number and open-ended answers (and their gpt-5-mini judgments) are the 2026-10-24 run's, unchanged; the 139 list answers are the 2026-10-27 rank-prior run's, which used the same cached map decisions and depth 10, and are scored deterministically (Jaccard). Nothing was re-judged, so the +0.56 comes entirely from the deterministic list questions.
+
+Stated plainly in the sanitization note's new section: the "list questions only" rule was chosen after the per-type results of the rank-prior run were known on the full set (that run scored 78.05 overall because the extra items cost the other two types); the depth was then confirmed on the hash subset's 30 list questions (depth 0 / 5 / 10 / 15 / 20 / 25 = 73.7 / 77.1 / 80.7 / 80.0 / 76.2 / 77.9).
+
+Files: `leaderboard.html` (row QS, the § note's answering sentence in EN and ZH), `docs/mediafind-hosted-llms-atmbench.json` (per-question scores + top-25 ids for the new set), `docs/mediafind-hosted-llms-sanitization.md` (new section with UTC times and cost). `node tools/verify_leaderboard.mjs` passes.

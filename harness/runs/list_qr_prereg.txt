@@ -1,0 +1,5 @@
+PRE-REGISTERED 2026-10-29 (UTC): list-only answer pass on runs/san_fused_list_qr3.rank.json
+Coverage gate (list_fuse.py) FAILED: no variant reaches unc@25 <= 8 (adopted 10). Secondary deterministic signal: list R@10 90.21 -> 93.34,
+R@25 95.61 -> 96.07, unc@25 10 (+1/-1); the reduce step reads the top-10 as its rank prior (K_LIST=10), and list_recall is scored
+deterministically (no judge). ONE run, full 139 list q, adopted list policy (one 25-item map call, K_LIST=10). Adopt only if list_recall >= 82.4
+(adopted b25_q4b = 80.2). No re-roll, no higher-of-two.

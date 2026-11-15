@@ -1,0 +1,5 @@
+Row update: **QS 79.41 → 80.00** (R@10 unchanged, 90.12). One change, deterministic and free: number-type answers now pass through a string formatter as the last pipeline step (full month names instead of ISO dates, no seconds or timezone suffix after a clock time, compact am/pm). The official deterministic scorer requires every 4+ character token of the ground truth to appear verbatim in the prediction and reads the month-day part of an ISO date as a time range, so correct answers written as `2023-04-20 14:40` or `3 pm` were scored wrong on format alone.
+
+Measured on the previous row's answer set: 161 of 360 number answers rewritten, 6 wrong→right, 0 right→wrong, number accuracy 81.39 → 83.06. Open-ended judgments are carried over verbatim (nothing re-judged), list answers unchanged; the official evaluator's `em` metric re-run on the formatted file reproduces number 83.06 and list 80.58.
+
+Files: `docs/mediafind-hosted-llms-atmbench.json` (per-question scores and top-25 ids, regenerated), `docs/mediafind-hosted-llms-sanitization.md` (new section, including a list-question reranker pass tried today and not adopted), `leaderboard.html` (row and § note).

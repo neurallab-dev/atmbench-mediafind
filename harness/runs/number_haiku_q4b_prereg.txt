@@ -1,0 +1,5 @@
+PRE-REGISTERED 2026-10-29 15:35 UTC: ONE number-only answer pass, nfull_haiku_q4b = adopted number configuration (10-item map batches, no rank prior,
+reduce gpt-5.4-mini minimal, deterministic formatter) with (a) the relevance map by anthropic/claude-haiku-5.5 and (b) the wider list pool
+runs/san_fused_e_q4b_w15.rank.json instead of runs/san_fused.rank.json. Hypothesis: the two deterministic gains add — the haiku map keeps gold on
+13 more q net (realized +3 q on the old pool, at the bar but not above it) and the wider pool covers 8 more number q at 25 (−1), which the old map
+did not convert (293 vs 294). Adopt only if number correct >= 303/360 (QS > 80.30 against the board's 80.00). No re-roll, no higher-of-two.

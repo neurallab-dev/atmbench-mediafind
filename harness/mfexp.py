@@ -1,0 +1,178 @@
+"""Persistent-library MediaFind memory-search experiments over ATM-Bench (copy of the 4471c2e1 session's harness).
+
+usage (from the worktree, main venv):  MEDIAFIND_DATA=<dir> MEDIAFIND_EMBED=... MEDIAFIND_RERANK=... python mfexp.py TASKS.jsonl OUT_PREFIX CONFIG [CONFIG...]
+CONFIG = name:mode[:key=val,...]  keys: cap (rerank candidate cap), w (fusion rerank weight), k, span (question_span), asof (epoch),
+         dd=<N> (whole-item cross-encoder rerank of the top-N distinct items after fusion), full=<chars> ; e.g. ddlex50:lexical:dd=50,w=1.0,full=3000
+Ingests once per MEDIAFIND_DATA (marker file), then writes OUT_PREFIX.<name>.rank.json {question: [session ids]} and prints R@k.
+"""
+import os, sys, json, time, collections
+sys.path.insert(0, os.getcwd())
+os.environ.setdefault("MEDIAFIND_MEMORY_ISOLATION", "library")
+os.environ.setdefault("HF_HUB_OFFLINE", "1"); os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+from eval.memory.tasks import read_tasks, to_sessions
+from mediafind import memory_index, textsource, config
+import mediafind.search as S
+from mediafind.memory_search import search_memory
+import mediafind.rerank as rr
+rdev = os.environ.get("MF_RERANK_DEVICE")  # cpu | mps | mps-retry (retry OOM, fp16, fall back to cpu)
+if rdev:
+    dev = "mps" if rdev == "mps-retry" else rdev
+    class _Cfg:
+        def __getattr__(self, name): return getattr(config, name)
+        def embed_device(self): return dev
+    rr.config = _Cfg()
+
+def _ensure_ce():
+    """Load the cross-encoder, retrying MPS OOM; after 20 failures fall back to CPU. Never lexical."""
+    global dev
+    for attempt in range(40):
+        try:
+            rr.ensure_cross_encoder()
+            if dev == "mps" and os.environ.get("MF_RERANK_FP16", "1") == "1":
+                rr._MODEL.model = rr._MODEL.model.half()
+            print(f"[rerank] cross-encoder {config.rerank_model()} on {dev}", flush=True)
+            return
+        except Exception as e:
+            print(f"[rerank] load attempt {attempt} failed: {repr(e)[:160]}", flush=True)
+            rr.reset_cache()
+            try:
+                import torch; torch.mps.empty_cache()
+            except Exception: pass
+            if attempt == 20 and rdev == "mps-retry":
+                dev = "cpu"
+            time.sleep(15)
+    raise SystemExit("cross-encoder never loaded")
+
+if rdev:
+    _ensure_ce()
+    _orig_scores = S.rerank_scores
+    def _scores_retry(query, docs):
+        global dev
+        for attempt in range(60):
+            try:
+                if rr.backend() != "cross-encoder":
+                    rr.reset_cache(); _ensure_ce()
+                return _orig_scores(query, docs)
+            except RuntimeError as e:
+                if "out of memory" not in str(e): raise
+                try:
+                    import torch; torch.mps.empty_cache()
+                except Exception: pass
+                if attempt == 12 and dev == "mps":
+                    print("[rerank] MPS OOM persisted; switching the cross-encoder to CPU", flush=True)
+                    dev = "cpu"; rr.reset_cache(); _ensure_ce()
+                    continue
+                time.sleep(10)
+        raise RuntimeError("rerank OOM persisted")
+    S.rerank_scores = _scores_retry
+if os.environ.get("MF_DOC_CHUNK_WORDS"):
+    textsource.DOCUMENT_CHUNK_WORDS = int(os.environ["MF_DOC_CHUNK_WORDS"])
+if os.environ.get("MF_DOC_HEADER"):
+    # Chunking lever variant C: every chunk after the first of a DOCUMENT session carries the item's header lines
+    # (ID/Type/Timestamp/Location for a photo or video, ID/Timestamp for an email), which only chunk 1 holds otherwise.
+    _orig_chunk_turn = textsource.chunk_turn
+    def _chunk_turn_header(text, max_words=textsource.MAX_CHUNK_WORDS):
+        chunks = _orig_chunk_turn(text, max_words)
+        if max_words == textsource.MAX_CHUNK_WORDS or len(chunks) < 2: return chunks
+        lines = text.split("\n"); n = 4 if any(l.startswith("Type: ") for l in lines[:4]) else 2
+        head = " ".join(" ".join(l.split()) for l in lines[:n])
+        return [chunks[0]] + [head + " " + c for c in chunks[1:]]
+    textsource.chunk_turn = _chunk_turn_header
+    print("[chunk] header-prefixed document chunks ON", flush=True)
+tasks_path, out_prefix, configs = sys.argv[1], sys.argv[2], sys.argv[3:]
+task = read_tasks(tasks_path)[0]
+_orig_fused_doc = S._fused_doc
+_orig_rerank_fused = S._rerank_fused
+_orig_fuse = S._fuse_channels
+_dd_query = [""]
+from mediafind.textsource import session_uri as _session_uri
+_full_text = {_session_uri(task.library, s.session_id): "\n".join(t.text for t in s.turns) for s in task.sessions}
+qa = {q.question: q for q in task.questions}
+idx = memory_index.open_memory_index(task.library)
+marker = os.path.join(os.environ["MEDIAFIND_DATA"], f"ingested-{task.library}.json")
+from mediafind import embed as _embed
+_embed.embed(["warm-up"])
+if _embed.backend() != "sentence-transformers":
+    raise SystemExit(f"embedder did not load (backend={_embed.backend()}): refusing to ingest/search with hashing vectors")
+print(f"[embed] backend {_embed.backend()} model {config.embed_model()} device {config.embed_device()}", flush=True)
+if os.environ.get("MF_QUERY_PROMPT"):
+    # Asymmetric embedders (Qwen3-Embedding) ship a "query" prompt in their sentence-transformers config: apply it to the
+    # QUERY side only (ingest is untouched; this run reuses injected document vectors). Patches the by-value imports.
+    import numpy as _np
+    import mediafind.memory_search as _ms
+    _orig_embed = _embed.embed
+    def _embed_query(texts):
+        model, backend = _embed._active_model()
+        prompts = getattr(model, "prompts", None) or {}
+        if backend == "sentence-transformers" and model is not None and prompts.get("query"):
+            from mediafind.visual import mps_inference_lock
+            with mps_inference_lock(getattr(model, "device", "cpu")):
+                v = model.encode(texts, prompt_name="query", normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False)
+            return v.astype(_np.float32)
+        return _orig_embed(texts)
+    _ms.embed = _embed_query; S.embed = _embed_query
+    print("[embed] query prompt hook active:", bool((getattr(_embed._active_model()[0], "prompts", None) or {}).get("query")), flush=True)
+if not os.path.exists(marker):
+    t0 = time.time(); textsource.reset_library(idx, task.library)
+    for n, session in enumerate(to_sessions(task)):
+        textsource.ingest_session(idx, session)
+        if (n + 1) % 1000 == 0: print(f"[ingest] {n+1} sessions {time.time()-t0:.0f}s", flush=True)
+    json.dump({"sessions": n + 1, "seconds": time.time() - t0, "embed": config.embed_model(), "chunk_words": textsource.document_chunk_words()}, open(marker, "w"))
+    print(f"[ingest] done {n+1} sessions in {time.time()-t0:.0f}s", flush=True)
+else:
+    print("[ingest] reusing", json.load(open(marker)), flush=True)
+def recall(R, k):
+    return sum(sum(e in R.get(q, [])[:k] for e in g.evidence.session_ids) / len(g.evidence.session_ids) for q, g in qa.items() if g.evidence.session_ids) / len(qa)
+for cfg in configs:
+    parts = cfg.split(":"); name, mode = parts[0], parts[1]
+    opts = dict(kv.split("=") for kv in parts[2].split(",")) if len(parts) > 2 and parts[2] else {}
+    S.RERANK_CANDIDATE_CAP = int(opts.get("cap", 50)); S.FUSION_RERANK_WEIGHT = float(opts.get("w", 0.5))
+    if "doc" in opts: S._FUSED_DOC_MAX_CHARS = int(opts["doc"])
+    if opts.get("dd"):
+        n_head = int(opts["dd"]); w_dd = float(opts.get("w", 1.0)); lim = int(opts.get("full", 3000))
+        def _fuse_dd(*args, _ft=_full_text, _n=n_head, _w=w_dd, _lim=lim, **kw):
+            fused = _orig_fuse(*args, **kw)
+            fused.sort(key=lambda h: -float(h.get("rrf_score") or 0.0))
+            seen = set(); distinct = []; rest = []
+            for h in fused:
+                key = (h.get("media_path"), h.get("unit_id"))
+                (rest if key in seen else distinct).append(h); seen.add(key)
+            head, tail = distinct[:_n], distinct[_n:]
+            if len(head) < 2: return fused
+            query = kw.get("query") or _dd_query[0]
+            docs = [_ft.get(h.get("media_path", ""), "")[:_lim] or h.get("text", "") for h in head]
+            ce = S.rerank_scores(query, docs)
+            import math
+            fmax = max((float(h.get("rrf_score") or 0.0) for h in head), default=0.0) or 1.0
+            blend = [(1 - _w) * float(h.get("rrf_score") or 0.0) / fmax + _w / (1 + math.exp(-max(-30.0, min(30.0, float(c))))) for h, c in zip(head, ce)]
+            order = sorted(range(len(head)), key=lambda j: blend[j], reverse=True)
+            out = [head[j] for j in order]
+            for rank_, h in enumerate(out): h["rrf_score"] = 1000.0 - rank_
+            for h in tail + rest: h["rrf_score"] = min(float(h.get("rrf_score") or 0.0), 0.0) - 1.0
+            return out + tail + rest
+        S._fuse_channels = _fuse_dd
+        S._rerank_fused = lambda q, f: f
+    else:
+        S._fuse_channels = _orig_fuse
+        S._rerank_fused = _orig_rerank_fused
+    if opts.get("full"):
+        limit = int(opts["full"])
+        S._fused_doc = lambda hit, query="", _ft=_full_text: _ft.get(hit.get("media_path", ""), "")[:limit]
+    else:
+        S._fused_doc = _orig_fused_doc
+    k = int(opts.get("k", 100)); span = opts.get("span", "start"); asof = float(opts["asof"]) if "asof" in opts else None
+    R = {}; t0 = time.time(); lat = []
+    for n, (q, g) in enumerate(qa.items()):
+        t1 = time.time(); _dd_query[0] = q
+        res = search_memory(idx, task.library, q, mode=mode, k=k, budget_chars=200000, question_span=span, **({"as_of": asof} if asof is not None else {}))
+        lat.append(time.time() - t1)
+        ids = []
+        for m in res["memories"]:
+            sid = m.get("session_id") or (m.get("unit_id") or "").split("#")[0]
+            if sid and sid not in ids: ids.append(sid)
+        R[q] = ids
+        if (n + 1) % 100 == 0: print(f"[{name}] {n+1}/{len(qa)} {time.time()-t0:.0f}s R@10 so far {recall(R,10)*len(qa)/(n+1):.3f}", flush=True)
+    json.dump(R, open(f"{out_prefix}.{name}.rank.json", "w"))
+    lat.sort()
+    print(f"RESULT {name} mode={mode} opts={opts} " + " ".join(f"R@{kk} {recall(R,kk):.3f}" for kk in (1,5,10,25,50,100)) + f" p50 {lat[len(lat)//2]*1000:.0f}ms p95 {lat[int(len(lat)*0.95)]*1000:.0f}ms", flush=True)
+idx.close()

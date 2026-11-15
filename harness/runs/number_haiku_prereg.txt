@@ -1,0 +1,5 @@
+PRE-REGISTERED 2026-10-29 15:25 UTC: ONE number-only answer pass, nfull_haiku = the adopted number configuration (pool runs/san_fused.rank.json,
+10-item map batches, no rank prior, reduce gpt-5.4-mini minimal, deterministic formatter) with the relevance map by anthropic/claude-haiku-5.5
+instead of deepseek/deepseek-v4.1-flash. Deterministic gate (runs/mapb_nmap_*_b10.json, 360 number q): gold kept 417/453 vs 397/453,
+gold dropped on 26 vs 39 q, kept-nothing 0 vs 8, distractors 3.21 vs 3.19/q; 23 q newly all-gold-kept vs 10 lost.
+Adopt only if number correct >= 302/360 (83.89; adopted 299/360 = 83.06), i.e. QS > 80.30 (board 80.00 + 0.30). No re-roll, no higher-of-two.

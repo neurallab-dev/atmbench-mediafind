@@ -1,0 +1,4 @@
+PRE-REGISTERED 2026-10-29 14:55 UTC: ONE list-only answer pass, lfull_med_K10 = the adopted list configuration (pool runs/san_fused_e_q4b_w15.rank.json,
+deepseek map in one 25-item call (cached), K_LIST=10, reduce gpt-5.4-mini) with the reduce at reasoning effort MEDIUM instead of minimal
+(REDUCE_REASONING={"effort":"medium"}, max_tokens 8000). Rationale: every reduce-model probe so far ran at minimal effort; on gold-only input
+lists score 95.7-97.4, so the list errors are selection among the prior's candidates. Adopt only if list_recall >= 82.4 (adopted 80.2). No re-roll.
