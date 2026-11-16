@@ -17,8 +17,10 @@ need() {  # need <estimated $> <stage name>
 import json, os, re, urllib.request
 p = os.path.expanduser(os.environ.get("OPENROUTER_ENV_FILE", "~/.config/m3bench/openrouter.env"))
 k = next(re.match(r"\s*(?:export\s+)?OPENROUTER_API_KEY\s*=\s*(.+)", l).group(1).strip().strip("\"'") for l in open(p) if "OPENROUTER_API_KEY" in l)
-d = json.load(urllib.request.urlopen(urllib.request.Request("https://openrouter.ai/api/v1/auth/key", headers={"Authorization": "Bearer " + k}), timeout=30))["data"]
-print(d.get("limit_remaining"))
+get = lambda u: json.load(urllib.request.urlopen(urllib.request.Request(u, headers={"Authorization": "Bearer " + k}), timeout=30))["data"]
+key, cr = get("https://openrouter.ai/api/v1/auth/key"), get("https://openrouter.ai/api/v1/credits")
+# the key's spending limit and the account's purchased credits both cap spending: use the smaller
+print(min(float(key.get("limit_remaining") if key.get("limit_remaining") is not None else 1e9), float(cr["total_credits"]) - float(cr["total_usage"])))
 PY
 )
   echo "    balance \$$rem before '$2' (estimate \$$1, margin \$$MARGIN)"
@@ -58,6 +60,7 @@ fi
 [ -s runs/san_full.ce50.rank.json ] || { echo "ABORT: rerank missing"; exit 1; }
 # 6. question rewrites (paid) and the bge-m3 ranking of the DeepSeek rewrite (local) -> open-ended pool
 if [ ! -s atm/rw-san-key.json ]; then need 0.3 "rewrites (DeepSeek)"; stage "rewrites DeepSeek V4.1 Flash"; TRIPS="$SP/cards/trips_s.json" TASKS_TAG=san "$PY" -u rewrite_queries.py runs/rewrites_s.json > runs/rewrite_s.log 2>&1; head -1 runs/rewrite_s.log; fi
+[ "$(grep -c '^FAILED' runs/rewrite_s.log)" -eq 0 ] || { rm -f atm/rw-san-key.json atm/atm-bench-san-rw.doc.jsonl runs/rewrites_s.json; echo "ABORT: failed DeepSeek rewrites (outputs removed)"; exit 1; }
 if [ ! -s runs/rw_san.lex.rank.json ]; then stage "rewritten-query lexical ranking (bge-m3)"; MF_WORKTREE="$PIN_BGE" MEDIAFIND_EMBED_DEVICE=cpu ./run_rank.sh data_san atm/atm-bench-san-rw.doc.jsonl runs/rw_san lex:lexical > runs/rw_san.log 2>&1; grep RESULT runs/rw_san.log; fi
 [ -s runs/san_fused.rank.json ] || { stage "open-ended pool"; "$PY" -I make_pool_san.py || exit 1; }
 rewrite_set() {  # rewrite_set TAG MODEL ESTIMATE
@@ -66,6 +69,11 @@ rewrite_set() {  # rewrite_set TAG MODEL ESTIMATE
     TRIPS="$SP/cards/trips_s.json" TASKS_TAG="$1" "$PY" -u rewrite_queries.py "runs/rewrites_$1.json" "$2" > "runs/rewrite_$1.log" 2>&1; head -1 "runs/rewrite_$1.log"
   fi
   [ -s "atm/rw-$1-key.json" ] || { echo "ABORT: rewrites $1 missing"; exit 1; }
+  # rewrite_queries.py keeps the original question when a call fails: a set with any failed call is not the frozen set
+  if [ "$(grep -c '^FAILED' "runs/rewrite_$1.log")" -ne 0 ]; then
+    rm -f "atm/rw-$1-key.json" "atm/atm-bench-$1-rw.doc.jsonl" "runs/rewrites_$1.json"
+    echo "ABORT: $(grep -c '^FAILED' "runs/rewrite_$1.log") failed rewrites in runs/rewrite_$1.log (outputs removed; re-run: cached calls are free)"; exit 1
+  fi
 }
 rewrite_set sanmini openai/gpt-5.4-mini 0.8
 # 7. Qwen3-Embedding-4B ranking (local): document vectors over the store's own chunks, injected into a copy of the store,
