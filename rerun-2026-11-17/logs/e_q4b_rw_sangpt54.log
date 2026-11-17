@@ -1,0 +1,16 @@
+[embed] loading text embedding model 'Qwen/Qwen3-Embedding-4B' (cache: /Users/mbp/Library/Application Support/MediaFind/models/huggingface); the first run on a cold cache downloads weights and can take several minutes.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:07<00:07,  7.42s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:13<00:00,  6.42s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:13<00:00,  6.57s/it]
+[embed] backend sentence-transformers model Qwen/Qwen3-Embedding-4B device mps
+[embed] query prompt hook active: True
+[ingest] reusing {'sessions': 11034, 'seconds': 1923.7929389476776, 'embed': 'Qwen/Qwen3-Embedding-4B', 'chunk_words': 160, 'injected_from': 'runs/pe_q4b_units.npy'}
+[lex] 100/1013 55s R@10 so far 0.811
+[lex] 200/1013 107s R@10 so far 0.830
+[lex] 300/1013 162s R@10 so far 0.841
+[lex] 400/1013 223s R@10 so far 0.847
+[lex] 500/1013 348s R@10 so far 0.841
+[lex] 600/1013 448s R@10 so far 0.843
+[lex] 700/1013 536s R@10 so far 0.844
+[lex] 800/1013 631s R@10 so far 0.846
+[lex] 900/1013 701s R@10 so far 0.849
+[lex] 1000/1013 767s R@10 so far 0.851
+RESULT lex mode=lexical opts={} R@1 0.394 R@5 0.755 R@10 0.851 R@25 0.918 R@50 0.946 R@100 0.964 p50 662ms p95 1417ms

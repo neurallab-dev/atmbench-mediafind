@@ -1,0 +1,94 @@
+    balance $107.35810836600001 before 'timeline' (estimate $0.5, margin $0.5)
+=== timeline (2026-11-15T05:58Z)
+wrote 1517 records -> cards/trips_s.json | calls 135 (+0 cached) prompt 1,083,023 completion 178,532 usd 0.246
+    balance $107.11376611499998 before 'cards' (estimate $2.0, margin $0.5)
+=== cards (2026-11-15T06:00Z)
+done 0 fails 0 | calls 0 (+0 cached) prompt 0 completion 0 usd 0.000
+cards: 4292
+    balance $105.20477742600002 before 'vision' (estimate $2.0, margin $0.5)
+=== vision (2026-11-15T06:06Z)
+done 0 fails 0 | calls 0 (+0 cached) prompt 0 completion 0 usd 0.000
+vision: 4292
+=== tasks (2026-11-15T06:35Z)
+4292 cards
+4292 visual descriptions appended
+/Users/mbp/eval-archive/atm-run/atm/atm-bench-san.doc.jsonl sessions 11034 augmented 4292 questions 1013
+items-san.json augmented 4292
+=== ingest + lexical ranking (bge-m3, CPU) (2026-11-15T06:35Z)
+ABORT: lexical ranking missing (runs/san_full.log)
+exit 1
+cards: 4292
+vision: 4292
+=== ingest + lexical ranking (bge-m3, CPU) (2026-11-15T06:35Z)
+RESULT lex mode=lexical opts={} R@1 0.416 R@5 0.783 R@10 0.858 R@25 0.908 R@50 0.927 R@100 0.949 p50 272ms p95 391ms
+=== whole-item rerank top-50 (MPS) (2026-11-15T07:12Z)
+model BAAI/bge-reranker-v2-m3 N 50 n 1013 R@1 0.416->0.599 R@5 0.783->0.826 R@10 0.858->0.872 R@25 0.908->0.915 R@50 0.927->0.927
+    balance $103.71701017499998 before 'rewrites (DeepSeek)' (estimate $0.3, margin $0.5)
+=== rewrites DeepSeek V4.1 Flash (2026-11-15T10:06Z)
+rewrites 1013 | calls 1013 (+0 cached) prompt 608,490 completion 30,750 usd 0.043
+=== rewritten-query lexical ranking (bge-m3) (2026-11-15T10:07Z)
+RESULT lex mode=lexical opts={} R@1 0.370 R@5 0.723 R@10 0.812 R@25 0.892 R@50 0.930 R@100 0.953 p50 354ms p95 418ms
+=== open-ended pool (2026-11-15T10:13Z)
+san lexical                      R@1 0.416 R@5 0.783 R@10 0.858 R@25 0.908 R@50 0.927 R@100 0.949
+san reranked                     R@1 0.599 R@5 0.826 R@10 0.872 R@25 0.915 R@50 0.927 R@100 0.949
+san rewritten-query lexical      R@1 0.370 R@5 0.723 R@10 0.812 R@25 0.892 R@50 0.930 R@100 0.953
+san fused (submitted ranking)    R@1 0.522 R@5 0.836 R@10 0.899 R@25 0.939 R@50 0.960 R@100 0.970
+    balance $103.67353120199999 before 'rewrites (openai/gpt-5.4-mini)' (estimate $0.8, margin $0.5)
+=== rewrites openai/gpt-5.4-mini (2026-11-15T10:13Z)
+rewrites 1013 | calls 1013 (+0 cached) prompt 607,279 completion 139,417 usd 1.083
+=== Qwen3-Embedding-4B encode (MPS fp16) (2026-11-15T10:17Z)
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/proxy_q_orig.npy'
+=== 4B retrieval (question, DeepSeek and GPT-5.4 mini rewrites) + rerank (2026-11-15T11:58Z)
+    key = json.load(open(keyp)); R = json.load(open(p)); return {byid[key[k]]["question"]: v for k, v in R.items() if k in key}
+                                               ^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/rw_sanmini.lex.rank.json'
+=== S2 q4b done (07:18)
+    balance $102.52036945200001 before 'rewrites (openai/gpt-5.4)' (estimate $5.0, margin $0.5)
+=== rewrites openai/gpt-5.4 (2026-11-15T15:18Z)
+FAILED f2467c3e-d75a-40f9-8ed9-3cfcd16acbb5 RuntimeError('chat failed: HTTP 402 b\'{"error":{"message":"This request would exceed your available credits given your 
+=== 4B retrieval (GPT-5.4 rewrite) (2026-11-15T17:54Z)
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/rw_sanmini.lex.rank.json'
+=== S2 q4b done (10:02)
+=== list and number pool (2026-11-15T18:02Z)
+w15: R@10 91.20 R@25 95.29 unc@25 67 lost 9
+typecond2: R@1 54.04 R@5 85.05 R@10 90.58 R@25 94.75
+    balance $99.81011695199999 before 'open-ended answers' (estimate $3.0, margin $0.5)
+=== answers: open_end (514) (2026-11-15T18:02Z)
+wrote 514 | calls 17 (+0 cached) prompt 122,020 completion 735 usd 0.009
+    balance $99.800854007 before 'list answers' (estimate $1.0, margin $0.5)
+=== answers: list_recall (139) (2026-11-16T03:28Z)
+wrote 139 | calls 0 (+0 cached) prompt 0 completion 0 usd 0.000
+    balance $99.800854007 before 'number answers' (estimate $2.5, margin $0.5)
+=== answers: number (360) (2026-11-16T05:54Z)
+wrote 360 | calls 0 (+0 cached) prompt 0 completion 0 usd 0.000
+ABORT: ans/rr_open.jsonl incomplete or has FAILED lines (re-run this script: cached calls are free)
+exit 1
+cards: 4292
+vision: 4292
+    balance $99.800854007 before 'rewrites (openai/gpt-5.4)' (estimate $5.0, margin $0.5)
+=== rewrites openai/gpt-5.4 (2026-11-17T06:18Z)
+rewrites 1013 | calls 366 (+647 cached) prompt 219,533 completion 58,772 usd 1.430
+=== 4B retrieval (GPT-5.4 rewrite) (2026-11-17T06:20Z)
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/rw_sanmini.lex.rank.json'
+=== S2 q4b done (22:33)
+=== list and number pool (2026-11-17T06:33Z)
+w15: R@10 91.13 R@25 95.42 unc@25 67 lost 8
+typecond2: R@1 53.74 R@5 85.19 R@10 90.51 R@25 94.69
+    balance $98.17338900700003 before 'open-ended answers' (estimate $3.0, margin $0.5)
+=== answers: open_end (514) (2026-11-17T06:33Z)
+wrote 514 | calls 2039 (+17 cached) prompt 12,224,801 completion 184,873 usd 3.374
+    balance $94.824920712 before 'list answers' (estimate $1.0, margin $0.5)
+=== answers: list_recall (139) (2026-11-17T06:43Z)
+wrote 139 | calls 278 (+0 cached) prompt 4,755,168 completion 40,479 usd 1.671
+    balance $93.11522513 before 'number answers' (estimate $2.5, margin $0.5)
+=== answers: number (360) (2026-11-17T06:45Z)
+wrote 360 | calls 1440 (+0 cached) prompt 10,332,774 completion 547,358 usd 2.180
+1013 predictions; 0 empty answers; sha256 5a88d4ea3283cac116b2243e484a956ea9cc7b1240ade149619d71d86a053a32
+    balance $90.93500662999998 before 'judge' (estimate $1.5, margin $0.5)
+=== judge (once) (2026-11-17T06:56Z)
+mediafind-hosted-llms-rerun QS 77.85 {'number': 83.1, 'list_recall': 75.3, 'open_end': 74.9} n 1013
+=== RE-RUN DONE (2026-11-17T07:13Z)
+mediafind-hosted-llms-rerun QS 77.85 {'number': 83.1, 'list_recall': 75.3, 'open_end': 74.9} n 1013
+1013 predictions; 0 empty answers; sha256 5a88d4ea3283cac116b2243e484a956ea9cc7b1240ade149619d71d86a053a32

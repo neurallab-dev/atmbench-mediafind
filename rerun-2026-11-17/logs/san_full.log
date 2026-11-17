@@ -1,0 +1,25 @@
+[embed] loading text embedding model 'BAAI/bge-m3' (cache: /Users/mbp/Library/Application Support/MediaFind/models/huggingface); the first run on a cold cache downloads weights and can take several minutes.
+[embed] backend sentence-transformers model BAAI/bge-m3 device cpu
+[ingest] 1000 sessions 134s
+[ingest] 2000 sessions 314s
+[ingest] 3000 sessions 461s
+[ingest] 4000 sessions 652s
+[ingest] 5000 sessions 778s
+[ingest] 6000 sessions 982s
+[ingest] 7000 sessions 1123s
+[ingest] 8000 sessions 1407s
+[ingest] 9000 sessions 1608s
+[ingest] 10000 sessions 1766s
+[ingest] 11000 sessions 1921s
+[ingest] done 11034 sessions in 1924s
+[lex] 100/1013 27s R@10 so far 0.869
+[lex] 200/1013 55s R@10 so far 0.860
+[lex] 300/1013 84s R@10 so far 0.884
+[lex] 400/1013 112s R@10 so far 0.875
+[lex] 500/1013 139s R@10 so far 0.859
+[lex] 600/1013 168s R@10 so far 0.862
+[lex] 700/1013 196s R@10 so far 0.861
+[lex] 800/1013 224s R@10 so far 0.857
+[lex] 900/1013 253s R@10 so far 0.857
+[lex] 1000/1013 280s R@10 so far 0.859
+RESULT lex mode=lexical opts={} R@1 0.416 R@5 0.783 R@10 0.858 R@25 0.908 R@50 0.927 R@100 0.949 p50 272ms p95 391ms

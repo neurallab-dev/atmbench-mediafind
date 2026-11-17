@@ -1,0 +1,25 @@
+4292 items to do (0 already), model deepseek/deepseek-v4-flash-vision-exp, workers 16
+200/4292 fails 0 | calls 208 (+0 cached) prompt 101,352 completion 35,126 usd 0.052
+400/4292 fails 0 | calls 409 (+0 cached) prompt 199,330 completion 68,746 usd 0.101
+600/4292 fails 0 | calls 633 (+0 cached) prompt 308,318 completion 110,055 usd 0.159
+800/4292 fails 0 | calls 815 (+0 cached) prompt 396,546 completion 139,482 usd 0.204
+1000/4292 fails 0 | calls 1016 (+0 cached) prompt 493,672 completion 186,394 usd 0.263
+1200/4292 fails 0 | calls 1204 (+0 cached) prompt 584,636 completion 222,043 usd 0.312
+1400/4292 fails 0 | calls 1406 (+0 cached) prompt 681,872 completion 262,710 usd 0.366
+1600/4292 fails 0 | calls 1610 (+0 cached) prompt 780,684 completion 302,201 usd 0.420
+1800/4292 fails 0 | calls 1807 (+0 cached) prompt 876,722 completion 357,269 usd 0.484
+2000/4292 fails 0 | calls 2019 (+0 cached) prompt 980,010 completion 402,601 usd 0.545
+2200/4292 fails 0 | calls 2206 (+0 cached) prompt 1,069,640 completion 435,725 usd 0.590
+2400/4292 fails 0 | calls 2421 (+0 cached) prompt 1,172,630 completion 471,242 usd 0.642
+2600/4292 fails 0 | calls 2609 (+0 cached) prompt 1,262,846 completion 517,585 usd 0.699
+2800/4292 fails 0 | calls 2811 (+0 cached) prompt 1,360,026 completion 555,054 usd 0.751
+3000/4292 fails 0 | calls 3068 (+0 cached) prompt 1,484,176 completion 631,039 usd 0.841
+3200/4292 fails 0 | calls 3348 (+0 cached) prompt 1,619,680 completion 695,547 usd 0.922
+3400/4292 fails 0 | calls 3445 (+0 cached) prompt 1,666,566 completion 721,660 usd 0.954
+3600/4292 fails 0 | calls 3641 (+0 cached) prompt 1,761,910 completion 761,610 usd 1.007
+3800/4292 fails 0 | calls 3803 (+0 cached) prompt 1,875,514 completion 801,267 usd 1.064
+4000/4292 fails 0 | calls 4002 (+0 cached) prompt 2,133,418 completion 837,463 usd 1.156
+4200/4292 fails 0 | calls 4201 (+0 cached) prompt 2,391,322 completion 878,212 usd 1.253
+done 4292 fails 0 | calls 4292 (+0 cached) prompt 2,509,258 completion 896,236 usd 1.297
+0 items to do (4292 already), model deepseek/deepseek-v4-flash-vision-exp, workers 16
+done 0 fails 0 | calls 0 (+0 cached) prompt 0 completion 0 usd 0.000

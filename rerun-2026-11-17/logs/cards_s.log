@@ -1,0 +1,25 @@
+4292 items to do (0 already), model deepseek/deepseek-v4.1-flash, workers 24
+200/4292 fails 0 | calls 210 (+0 cached) prompt 706,606 completion 41,986 usd 0.102
+400/4292 fails 0 | calls 415 (+0 cached) prompt 1,400,783 completion 83,005 usd 0.196
+600/4292 fails 0 | calls 612 (+0 cached) prompt 1,994,603 completion 121,337 usd 0.283
+800/4292 fails 0 | calls 813 (+0 cached) prompt 2,520,893 completion 159,439 usd 0.370
+1000/4292 fails 0 | calls 1037 (+0 cached) prompt 3,191,696 completion 203,594 usd 0.476
+1200/4292 fails 0 | calls 1250 (+0 cached) prompt 3,793,430 completion 246,062 usd 0.566
+1400/4292 fails 0 | calls 1431 (+0 cached) prompt 4,286,965 completion 281,284 usd 0.642
+1600/4292 fails 0 | calls 1621 (+0 cached) prompt 4,927,416 completion 320,433 usd 0.733
+1800/4292 fails 0 | calls 1832 (+0 cached) prompt 5,777,955 completion 364,803 usd 0.844
+2000/4292 fails 0 | calls 2023 (+0 cached) prompt 6,390,821 completion 404,013 usd 0.937
+2200/4292 fails 0 | calls 2258 (+0 cached) prompt 7,105,192 completion 450,646 usd 1.042
+2400/4292 fails 0 | calls 2415 (+0 cached) prompt 7,634,856 completion 484,369 usd 1.121
+2600/4292 fails 0 | calls 2635 (+0 cached) prompt 8,550,529 completion 530,930 usd 1.247
+2800/4292 fails 0 | calls 2824 (+0 cached) prompt 9,325,492 completion 571,650 usd 1.355
+3000/4292 fails 0 | calls 3036 (+0 cached) prompt 10,139,825 completion 616,686 usd 1.466
+3200/4292 fails 0 | calls 3236 (+0 cached) prompt 10,894,798 completion 660,107 usd 1.569
+3400/4292 fails 0 | calls 3543 (+0 cached) prompt 11,947,945 completion 723,818 usd 1.725
+3600/4292 fails 0 | calls 3627 (+0 cached) prompt 12,283,815 completion 740,977 usd 1.770
+3800/4292 fails 0 | calls 3819 (+0 cached) prompt 12,952,564 completion 778,299 usd 1.859
+4000/4292 fails 0 | calls 4020 (+0 cached) prompt 13,656,422 completion 818,288 usd 1.954
+4200/4292 fails 0 | calls 4262 (+0 cached) prompt 14,575,673 completion 869,620 usd 2.074
+done 4292 fails 0 | calls 4303 (+0 cached) prompt 14,714,492 completion 877,706 usd 2.093
+0 items to do (4292 already), model deepseek/deepseek-v4.1-flash, workers 24
+done 0 fails 0 | calls 0 (+0 cached) prompt 0 completion 0 usd 0.000

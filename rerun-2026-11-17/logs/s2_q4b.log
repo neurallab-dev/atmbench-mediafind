@@ -1,0 +1,42 @@
+=== S2 q4b Qwen/Qwen3-Embedding-4B rewrites: san sanmini (03:58)
+vectors (24954, 2560)
+[('Qwen/Qwen3-Embedding-4B', 2560, 24954)]
+wrote data_q4b
+[embed] backend sentence-transformers model Qwen/Qwen3-Embedding-4B device mps
+[ingest] reusing {'sessions': 11034, 'seconds': 1923.7929389476776, 'embed': 'Qwen/Qwen3-Embedding-4B', 'chunk_words': 160, 'injected_from': 'runs/pe_q4b_units.npy'}
+RESULT lex mode=lexical opts={} R@1 0.435 R@5 0.783 R@10 0.862 R@25 0.918 R@50 0.955 R@100 0.971 p50 366ms p95 488ms
+RESULT lex mode=lexical opts={} R@1 0.382 R@5 0.737 R@10 0.823 R@25 0.908 R@50 0.934 R@100 0.956 p50 458ms p95 534ms
+RESULT lex mode=lexical opts={} R@1 0.403 R@5 0.776 R@10 0.860 R@25 0.927 R@50 0.956 R@100 0.970 p50 448ms p95 515ms
+=== CE50 (04:20)
+model BAAI/bge-reranker-v2-m3 N 50 n 1013 R@1 0.435->0.598 R@5 0.783->0.832 R@10 0.862->0.885 R@25 0.918->0.939 R@50 0.955->0.955
+Traceback (most recent call last):
+  File "/Users/mbp/eval-archive/atm-run/e_gate.py", line 12, in <module>
+    RWOLD = {t: load_rw(f"runs/rw_{t}.lex.rank.json", f"atm/rw-{t}-key.json") for t in RWT}
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mbp/eval-archive/atm-run/e_gate.py", line 8, in load_rw
+    key = json.load(open(keyp)); R = json.load(open(p)); return {byid[key[k]]["question"]: v for k, v in R.items() if k in key}
+                                               ^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/rw_sanmini.lex.rank.json'
+=== S2 q4b done (07:18)
+=== S2 q4b Qwen/Qwen3-Embedding-4B rewrites: san sanmini sangpt54 (09:54)
+RESULT lex mode=lexical opts={} R@1 0.414 R@5 0.764 R@10 0.853 R@25 0.925 R@50 0.952 R@100 0.971 p50 447ms p95 520ms
+Traceback (most recent call last):
+  File "/Users/mbp/eval-archive/atm-run/e_gate.py", line 12, in <module>
+    RWOLD = {t: load_rw(f"runs/rw_{t}.lex.rank.json", f"atm/rw-{t}-key.json") for t in RWT}
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mbp/eval-archive/atm-run/e_gate.py", line 8, in load_rw
+    key = json.load(open(keyp)); R = json.load(open(p)); return {byid[key[k]]["question"]: v for k, v in R.items() if k in key}
+                                               ^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/rw_sanmini.lex.rank.json'
+=== S2 q4b done (10:02)
+=== S2 q4b Qwen/Qwen3-Embedding-4B rewrites: san sanmini sangpt54 (22:20)
+RESULT lex mode=lexical opts={} R@1 0.394 R@5 0.755 R@10 0.851 R@25 0.918 R@50 0.946 R@100 0.964 p50 662ms p95 1417ms
+Traceback (most recent call last):
+  File "/Users/mbp/eval-archive/atm-run/e_gate.py", line 12, in <module>
+    RWOLD = {t: load_rw(f"runs/rw_{t}.lex.rank.json", f"atm/rw-{t}-key.json") for t in RWT}
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mbp/eval-archive/atm-run/e_gate.py", line 8, in load_rw
+    key = json.load(open(keyp)); R = json.load(open(p)); return {byid[key[k]]["question"]: v for k, v in R.items() if k in key}
+                                               ^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/rw_sanmini.lex.rank.json'
+=== S2 q4b done (22:33)

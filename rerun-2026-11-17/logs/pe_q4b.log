@@ -1,0 +1,19 @@
+[     0s] items 11034 questions 1013 model Qwen/Qwen3-Embedding-4B dtype fp16
+[     0s] store units (24954, 1024)
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.22s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.81s/it]
+[     7s] loaded on mps prompts {'query': 'Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery:', 'document': ''} max_seq_length 1024
+[     7s] instruction variant: {'prompt_name': 'query'}
+[    29s] encoded q_orig: 1013 texts on mps bs 8 in 23s
+[    66s] encoded q_rw: 1013 texts on mps bs 8 in 37s
+[   101s] encoded q_orig_inst: 1013 texts on mps bs 8 in 35s
+[   149s] encoded q_rw_inst: 1013 texts on mps bs 8 in 48s
+[  6081s] encoded units: 24954 texts on mps bs 8 in 5931s
+Traceback (most recent call last):
+  File "/Users/mbp/eval-archive/atm-run/proxy_embed.py", line 72, in <module>
+    VQ_BGE = np.load("runs/proxy_q_orig.npy")  # bge-m3 queries (proxy_chunking)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mbp/code/mediafind/.venv/lib/python3.12/site-packages/numpy/lib/npyio.py", line 427, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/proxy_q_orig.npy'
