@@ -127,7 +127,10 @@ def answer(q, pool, mode, batch):
         notes = "\n\n".join(item_text(i) for i in sorted(pool, key=ts))
         return final(chat(reduce_prompt(q["question"], notes, qtype)))
     kept = []
-    for s in range(0, len(pool), batch):
+    if mode == "all":
+        # No relevance map: the standard reduce call reads every pooled item (screening of 2026-11-20).
+        kept = [(i, "") for i in pool]
+    for s in range(0, len(pool) if mode == "mapreduce" else 0, batch):
         kept += map_batch(q["question"], pool[s:s + batch])
     ids = sorted(dict.fromkeys(i for i, _ in kept), key=ts)
     if not ids:
@@ -154,7 +157,7 @@ def main():
     ap.add_argument("--qa", required=True)
     ap.add_argument("--pool", required=True, help="'niah', 'gold' (oracle: the question's evidence ids) or a rank json {question: [ids]}")
     ap.add_argument("--topk", type=int, default=25)
-    ap.add_argument("--mode", choices=["single", "mapreduce"], default="mapreduce")
+    ap.add_argument("--mode", choices=["single", "mapreduce", "all"], default="mapreduce")
     ap.add_argument("--batch", type=int, default=10)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--out", required=True)
