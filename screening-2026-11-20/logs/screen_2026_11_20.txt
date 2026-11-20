@@ -1,0 +1,21 @@
+baseline (re-run of 2026-11-17) open: 78.12 on 96 questions
+baseline (re-run of 2026-11-17) list: 80.71 on 30 questions
+baseline (re-run of 2026-11-17) number: 82.86 on 70 questions
+    balance $90.77102152999998 before 'scr_S1_open' (estimate $8)
+=== scr_S1_open: open, reduce openai/gpt-6.2-astra {"effort": "low"}, mode mapreduce (2026-11-20T19:37:39Z)
+wrote 96 | calls 96 (+288 cached) prompt 408,291 completion 3,925 usd 4.219
+    answers       96, FAILED 0, reduce fallbacks 0; 
+    balance $88.02108153 before 'judge scr_S1_open' (estimate $0.3)
+scr_S1_open QS 76.04 {'number': 0.0, 'list_recall': 0.0, 'open_end': 76.0} n 96
+    balance $86.52588053 before 'scr_S2_open' (estimate $3)
+=== scr_S2_open: open, reduce anthropic/claude-opus-5.5 no reasoning, mode mapreduce (2026-11-20T19:41:25Z)
+wrote 96 | calls 96 (+288 cached) prompt 641,248 completion 28,391 usd 3.133
+    answers       96, FAILED 0, reduce fallbacks 0; 
+    balance $83.83311253 before 'judge scr_S2_open' (estimate $0.3)
+scr_S2_open QS 80.21 {'number': 0.0, 'list_recall': 0.0, 'open_end': 80.2} n 96
+    balance $83.36316203000001 before 'scr_S3_open' (estimate $2)
+=== scr_S3_open: open, reduce openai/gpt-6.2-sol {"effort": "low"}, mode mapreduce (2026-11-20T19:45:44Z)
+wrote 96 | calls 96 (+288 cached) prompt 408,291 completion 3,543 usd 1.052
+    answers       96, FAILED 0, reduce fallbacks 0; 
+    balance $82.97259978 before 'judge scr_S3_open' (estimate $0.3)
+scr_S3_open QS 73.96 {'number': 0.0, 'list_recall': 0.0, 'open_end': 74.0} n 96
